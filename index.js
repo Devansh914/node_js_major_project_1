@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
+import {app} from './app.js';
 import connection from "./db/db_connect.js";
+
 // {async () => {
 //     try{
 //        await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
