@@ -3,23 +3,27 @@ import fs from "fs";
 
 
 cloudinary.config({ 
-    cloud_name: CLOUDNAME, 
-    api_key: APIKEY, 
-    api_secret: APISECRET // Click 'View Credentials' below to copy your API secret
+    cloud_name:"dlzvght3z", 
+    api_key: "376252725245541", 
+    api_secret:"vs7gJAPAI76f4jkfq4YECr2v4uQ" // Click 'View Credentials' below to copy your API secret
 });
 
 
 const uploadOnCloudinary= async (localFilePath) =>{
     try{
+        
         if(!localFilePath) return null;
+        console.log(localFilePath);
         //upload file on cloudinary
-        const response= await uploader.upload(localFilePath,{
+        const response= await cloudinary.uploader.upload(localFilePath,{
             resource_type:"auto"
-        })
-        console.log("file is uploaded on cloudinary",response.url);
+        });
+        // console.log("file is uploaded on cloudinary",response);
+        fs.unlinkSync(localFilePath);
         return response;
     }catch(error){
-        fs.unlinkSync(localFilePath);
+        // fs.unlinkSync(localFilePath);
+        console.log(error);
         return null;
     }
 }

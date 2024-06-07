@@ -15,12 +15,12 @@ const userSchema=new Schema({
     required:true,
     unique:true,
     lowercase:true,
-    trime:true,
+    trim:true,
    },
    fullname:{
     type:String,
     required:true,
-    trime:true,
+    trim:true,
     index:true
    },
    avatar:{
@@ -56,30 +56,38 @@ userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password,this.password)
 }
 
-userSchema.method.generateAccessToken=function(){
-       jwt.sign({
-        _id:this._id,
-        email:this.email,
-        username:this.username,
-        fullname:this.fullname,
-       },
-    process.env.ACCESS_TOKEN_SECRET,{
-        expiresIn: process.env.ACCESS_TOKEN_EXPIRY
-    })
+userSchema.methods.generateAccessToken = function () {
+    console.log("hi");
+    const payload = {
+        _id: this._id,
+        email: this.email,
+        username: this.username,
+        fullname: this.fullname,
+    };
+
+    const secret = 'your-secret-key'; // Replace with your actual secret key
+    const expiresIn = '1d';
+
+   return jwt.sign(payload, secret, { expiresIn });
 }
 
-userSchema.method.generateRefreshToken=function(){
-    jwt.sign({
+// ACCESS_TOKEN_SECRET=
+// ACCESS_TOKEN_EXPIRY=1d
+// EXPIRY_TOKEN_SECRET=CODEKARO
+// EXPIRY_TOKEN_EXPIRY=10d
+
+userSchema.methods.generateRefreshToken=function(){
+    return jwt.sign({
      _id:this._id,
      email:this.email,
      username:this.username,
      fullname:this.fullname,
     },
- process.env.ACCESS_TOKEN_SECRET,{
-     expiresIn: process.env.ACCESS_TOKEN_EXPIRY
+ 'CODEKARO',{
+     expiresIn:'10d'
  })
 }
 
-userSchema.method.gnerateAccessToken=function(){}
+// userSchema.method.generateAccessToken=function(){}
 
 export const User=mongoose.model("User",userSchema);

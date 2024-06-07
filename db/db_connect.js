@@ -3,7 +3,7 @@ import { DB_NAME } from "../constants.js";
 
 const connection = async () => {
     try {
-        const connectionvar = await mongoose.connect("mongodb+srv://jasonshida:BRBznatrQ1AuAPr2@cluster0.bclztby.mongodb.net", {
+        const connectionvar = await mongoose.connect("mongodb+srv://devanshupadhyay91:kbBvhZ8CM8gMZOoY@cluster0.e5mudj1.mongodb.net", {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             dbName: DB_NAME,

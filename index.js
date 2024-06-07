@@ -16,13 +16,14 @@ import connection from "./db/db_connect.js";
 // }}
 
 dotenv.config({
-    path:'./env'
+    path:'./.env'
 });
 
+// dotenv.config();
 connection()
 .then(() =>{
     app.listen(process.env.PORT || 8000,() =>{
-        console.log('server is running at port :${process.env.PORT}')
+        console.log(`server is running at port :8000`)
     })
 })
 .catch((err)=>{
