@@ -11,8 +11,8 @@ const generateAccessAndRefreshToken = async(userId)=>{
             
             const accessToken=user.generateAccessToken();
             const refreshToken=user.generateRefreshToken();
-            // console.log(user);
             user.refreshToken= refreshToken;
+            // console.log(user.refreshToken);
             await user.save({validateBeforeSave:false});
 
             return {accessToken,refreshToken};
@@ -103,8 +103,8 @@ const loginUser=asyncHandler( async (req,res) =>{
        // send cookie
 
        const {username,email,password}=req.body;
-       if(!(username && email)){
-        throw new Apierror(400,"username or password is required");
+       if(!(username || email)){
+        throw new Apierror(400,"username or email is required");
        }
 
       const user = await User.findOne({
@@ -142,9 +142,11 @@ const loginUser=asyncHandler( async (req,res) =>{
 })
 
 const logoutUser = asyncHandler(async(req,res)=>{
+    console.log(req.user._id);
     await User.findByIdAndUpdate(req.user._id,{
+
         $set:{
-            refreshToken:undefined
+            refreshToken: null  //this removes the field from document
         }
     },{
         new:true
@@ -165,19 +167,23 @@ const logoutUser = asyncHandler(async(req,res)=>{
 })
 
 const refreshAccessToken= asyncHandler(async(req,res)=>{
-    const incomingRefreshToken = req.cookie.refreshToken|| req.body.refreshToken;
-
+    // console.log("hello babe");
+    const incomingRefreshToken = req.cookies.refreshToken|| req.body.refreshToken;
+    //  console.log(req.cookie);
+    // console.log(incomingRefreshToken);
     if(!incomingRefreshToken){
         throw new Apierror(401,"unauthorized request");
     }
+    // console.log(incomingRefreshToken);
    try {
-     const decodedToken = jwt.verify(incomingRefreshToken,process.env.ACCESS_TOKEN_SECRET);
-     const user = User.findById(decodedToken._id);
-     
+     const decodedToken = jwt.decode(incomingRefreshToken);
+    //  console.log(decodedToken);
+     const user = await User.findById(decodedToken._id);
+    //  console.log(user.username);
      if(!user){
          throw new Apierror(402,"invalid refresh token");
      }
- 
+    //  console.log(user.refreshToken);
      if(incomingRefreshToken !== user?.refreshToken){
          throw new Apierror(401,"refresh token is expired or used");
      }
@@ -199,6 +205,7 @@ const refreshAccessToken= asyncHandler(async(req,res)=>{
          )
      )
    } catch (error) {
+    // console.log("hell");
       throw new Apierror(401,error?.message || "invalid access token");
    }
 })
@@ -206,7 +213,7 @@ const refreshAccessToken= asyncHandler(async(req,res)=>{
 const changeCurrentPassword= asyncHandler(async(req,res)=>{
     const {oldpassword,newpassword}= req.body;
     const user = await User.findById(req.user?.id);
-   const passwordcheck =  awaituser.isPasswordCorrect(oldpassword);
+   const passwordcheck =  await user.isPasswordCorrect(oldpassword);
 
    if(!passwordcheck){
      throw new Apierror(401,"invalid old password");
@@ -230,15 +237,16 @@ const updateAccountDetails= asyncHandler(async(req,res)=>{
     if(!(fullname && email)){
         throw new Apierror(401,"all fields are required");
     }
-
-    const user = User.findByIdAndUpdate(req.user?._id,
+    // console.log(fullname,"  ",email);
+    // console.log(req.user?._id);
+    const user = await User.findByIdAndUpdate(req.user?._id,
         {
          $set:{
             fullname:fullname,
             email:email
          }   
-        },{new:true}).select("-password")
-
+        },{new:true}).select("-password");
+        // console.log(user.username);
         return res
         .status(200)
         .json(new Apiresponse(200,user,"account details updated successfully"));
@@ -271,7 +279,7 @@ const updateUsercoverimg= asyncHandler(async(req,res)=>{
     const coverimglocalpath = req.file?.path;
 
     if(!coverimglocalpath){
-     throw new Apierror(400,"avatar file is missing");
+     throw new Apierror(400,"coverimage file is missing");
     }
     const coverimg = await uploadOnCloudinary(coverimglocalpath);
 

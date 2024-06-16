@@ -65,16 +65,17 @@ userSchema.methods.generateAccessToken = function () {
         fullname: this.fullname,
     };
 
-    const secret = 'your-secret-key'; // Replace with your actual secret key
+    const secret = '123'; // Replace with your actual secret key
     const expiresIn = '1d';
 
    return jwt.sign(payload, secret, { expiresIn });
 }
 
-// ACCESS_TOKEN_SECRET=
+// ACCESS_TOKEN_SECRET=123
 // ACCESS_TOKEN_EXPIRY=1d
 // EXPIRY_TOKEN_SECRET=CODEKARO
 // EXPIRY_TOKEN_EXPIRY=10d
+
 
 userSchema.methods.generateRefreshToken=function(){
     return jwt.sign({
