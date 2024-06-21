@@ -146,7 +146,7 @@ const logoutUser = asyncHandler(async(req,res)=>{
     await User.findByIdAndUpdate(req.user._id,{
 
         $set:{
-            refreshToken: null  //this removes the field from document
+            refreshToken: 1 //this removes the field from document
         }
     },{
         new:true
@@ -169,7 +169,7 @@ const logoutUser = asyncHandler(async(req,res)=>{
 const refreshAccessToken= asyncHandler(async(req,res)=>{
     // console.log("hello babe");
     const incomingRefreshToken = req.cookies.refreshToken|| req.body.refreshToken;
-    //  console.log(req.cookie);
+    //  console.log(req.cookies);
     // console.log(incomingRefreshToken);
     if(!incomingRefreshToken){
         throw new Apierror(401,"unauthorized request");
@@ -212,14 +212,14 @@ const refreshAccessToken= asyncHandler(async(req,res)=>{
 
 const changeCurrentPassword= asyncHandler(async(req,res)=>{
     const {oldpassword,newpassword}= req.body;
-    const user = await User.findById(req.user?.id);
+    const user = await User.findById(req.user?._id);
    const passwordcheck =  await user.isPasswordCorrect(oldpassword);
 
    if(!passwordcheck){
      throw new Apierror(401,"invalid old password");
    }
 
-   user.password =  newpassword
+   user.password =  newpassword;
    await user.save({validateBeforeSave:false});
 
    return res.status(200).json(
@@ -318,12 +318,14 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
             }
         },{
             $lookup:{
-                from:"Subscription",
+                from:"subscriptions",
                 localField:"_id",
                 foreignField:"subscriber",
                 as:"subscribed_to"
             }
         },{
+            $addFields:{
+
             subscribersCount:{
                 $size:"$subscribers"
             },
@@ -337,7 +339,7 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
                       else: false
                   }
             }
-        },
+        }},
         {
             $project:{
                 fullname: 1,
